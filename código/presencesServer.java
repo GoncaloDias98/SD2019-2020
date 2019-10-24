@@ -1,9 +1,17 @@
 import java.net.*;
 import java.io.*;
+import java.util.*;
 
-public class presencesServer {
+public class presencesServer extends Thread{
 	static int DEFAULT_PORT=2000;
-	
+	static final String HTML_START =
+"<html>" +
+"<title>HTTP Server in java</title>" +
+"<body>";
+
+static final String HTML_END =
+"</body>" +
+"</html>";
 	public static void main(String[] args) {
 		int port=DEFAULT_PORT;
 		Presences presences = new Presences();
