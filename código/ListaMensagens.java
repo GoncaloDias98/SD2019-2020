@@ -21,4 +21,14 @@ public class ListaMensagens {
             System.out.println("i:" + i + " mensagem:" + m.getMensagem() + " id:" + m.getId());	
         }   
     }
+
+    public String registarMensagem(String  mensagem, String nickname, String id) {
+                   
+        System.out.println("registarMensagem:" + mensagem); 
+
+            Mensagem novaMensagem = new Mensagem(id, mensagem, nickname);
+            listaMensagens.add(novaMensagem); //Se é inserido um nickname, adiciona-o à listaClientes
+
+             return "";
+        }
 }

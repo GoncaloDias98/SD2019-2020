@@ -4,9 +4,10 @@ public class Mensagem {
     private String nickname;
     
 
-    public Mensagem (String id, String mensagem) {
+    public Mensagem (String id, String mensagem, String nickname) {
         this.id = id;
         this.mensagem = mensagem;
+        this.nickname = nickname;
     }
 
     public String getId() {

@@ -32,11 +32,11 @@ public class httpServer extends Thread {
         t.setListaClientes(listaClientes);
         t.setListaMensagens(listaMensagens);
         t.start();
-				t.start();
 				
+			
 			} catch (IOException e) {
 				System.out.println("Erro na execucao do servidor: "+e);
-				System.exit(1);
+				
 			}
 		}
 	} 

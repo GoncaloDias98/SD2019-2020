@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+    <html>	
+    
+    <head>
+			<meta charset="UTF-8">
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+			
+			<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+			<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+			<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+		</head>
+		
+    <body>
+	
+		  <div class="container">
+  
+				
+		  <!--Registo do Cliente-->
+		
+        <div id="registo">
+          <div class="row">
+                        
+                                                  
+          <form id='Registo' name='Registo' action="" method="post" autocomplete = "off">
+                    <p><strong>Registo do Cliente</strong></p>
+            
+            <div class="input-group mb-3">
+              <div class="input-group-prepend">
+                <span class="input-group-text" id="basic-addon1">Insira o nickname</span>
+              </div>
+              <input name="nickname" id="nickname" type="text" class="form-control" placeholder="Nickname" aria-label="Nickname" aria-describedby="basic-addon1">
+              <button type="button" class="btn btn-info" onclick="javascript:Registar()">Registar</button>
+            </div>
+            
+                        
+                </form>
+          </div>
+        </div>
+				
+
+		<!--Lista de Clientes Registados-->
+        <div id="Resultado" >
+
+        
+        </div> <!--id resultado-->
+		
+        <div id='mensagem' style="visibility:hidden">
+        <div class="row"> &nbsp; </div>
+          <div class="row">
+            <div class="input-group">
+              <div class="input-group-prepend">
+                <span class="input-group-text">Escreva uma mensagem</span>
+              </div>
+            <textarea id='texto_mensagem' name='texto_mensagem' class="form-control" aria-label="Mensagem"></textarea>
+            <button type="button" onClick="javascript:enviar()" class="btn btn-info">Enviar</button>
+            </div>
+            </div>
+          </div>
+          
+        </div>	<!--id mensagem-->
+			
+	
+    </div> <!--Container-->
+	
+	  <script>
+	
+        window.setInterval(function() {consulta();
+              },5000);
+          
+          var id="";
+                function Registar() {
+                    var nickname = document.getElementById("nickname").value;
+          
+          
+          let formData = new FormData();
+          formData.append('nickname', nickname);
+
+            fetch("http://127.0.0.1:8081/registo", {
+                        method: "POST",
+                        body: formData
+                        })	
+        .then(function(response) {
+          if (!response.ok)
+            //alert("Erro:" + response.statusText);
+            response.text().then(
+              function(text) {
+                alert("Erro:" + text);
+              }
+            );	
+          else 
+            response.text().then(
+              function(text) {
+                alert(text);
+                id=text;
+                //document.getElementById("Resultado").style.visibility = "visible";
+                document.getElementById("mensagem").style.visibility = "visible";
+                document.getElementById("registo").style.display = "none";
+              }
+            );	
+          });
+        
+        }
+        
+        function enviar() {
+          var mensagem = document.getElementById("texto_mensagem").value;
+
+          let formData = new FormData();
+          formData.append('mensagem', mensagem);
+
+          fetch("http://127.0.0.1:8081/mensagem/" + id, {
+                method: "POST",
+                body: formData
+                })
+          .then (function (response) {
+            if (response.ok) 
+              response.text().then (function(text) {
+                $("#Resultado").html(text);
+                $("#texto_mensagem").val("");
+              }
+              );
+            else 
+              response.text().then (function(text) {
+                alert("Erro:" + text);
+              })
+          });
+
+
+            //console.log (mensagem);
+
+        }
+      
+      function consulta(){
+        console.log("consulta");
+        fetch("http://127.0.0.1:8081/consulta").
+        then(function (response){
+          return response.text(); 
+        
+        }).then(function (text) { //substituição do div pela resposta do servidor
+            
+            //console.log (text);
+            
+            //document.getElementById("Resultado").innerHtml = text;
+            
+            $("#Resultado").html(text);			
+            
+        })
+      }
+			
+    </script>
+  
+  </body>
+
+</html>
+    

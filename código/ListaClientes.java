@@ -53,4 +53,13 @@ public class ListaClientes {
         } else return ""; 
     }
 
+    public String devolveNickname (String id) { //verifica se o nickname registado já existe
+
+        for (int i= 0; i < listaClientes.size(); i++) {
+            Cliente c = listaClientes.get(i);
+            if (c.getId().equals(id))
+                return c.getNickname(); 		
+        }   	
+        return "";  
+    }
 }

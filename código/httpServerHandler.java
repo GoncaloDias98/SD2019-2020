@@ -17,7 +17,7 @@ public class httpServerHandler extends Thread {
 
   public httpServerHandler(Socket ligacaoCliente) {
     clienteConectado = ligacaoCliente;
-  //  listaClientes = new ListaClientes();
+ 
   }
 
   public void setListaClientes(ListaClientes L){ //Vai buscar a lista de clientes registados
@@ -86,70 +86,24 @@ public class httpServerHandler extends Thread {
           }      
 
 
-        //Registo
-        if (arrOfStr[1].equals("registo")) { //Se o primeiro elemento for igual a /registo
-
-          //http://127.0.0.1:8081/registo/[Nickname]
-
-          System.out.println ("Vai registar o nickname " + arrOfStr[2] );  //arrOfStr[2] -> /nickname
-
-          String Nickname = arrOfStr[2];
-
-          if (Nickname.equals(""))     //se não existe o nickname inserido 
-            resposta(404, "Nickname vazio", false);  //resposta -> "Nickname vazio"
-          else if (listaClientes.existeCliente(Nickname))
-            resposta(404, "Nickname existente", false); //resposta -> "Nickname já existe"
-          else {
-
-            String id = listaClientes.registarCliente(Nickname);  //---->>>>Classe "ListaClientes" -- Se é inserido um nickname novo, adiciona-o à lista 
-
-            System.out.println ("Registo:" + id);  
-            
-            resposta(200, id, false); // resposta => atribui um id
-  
-          }    
-
-          listaClientes.PrintAll();  //imprime todos os elementos adicionados à lista
-
-        }  
+        
 
         //Consulta
         if (arrOfStr[1].equals("consulta")) {
 
 
           //http://127.0.0.1:8081/consulta
-          //listaClientes.PrintAll();
+          
 
           System.out.println ("Vai consultar " );
 
-          resposta(200, httpQuery, false);
+          String Consulta = getConsulta();
+
+          resposta(200, Consulta, false);
 
         }  
+      } // Fim GET
 
-        
-
-       // resposta(200, httpQuery, false);
-
- 
-
-
-        /*
-            if (httpQuery.equals("/")) {
-              // The default home page
-              resposta(200, bufferResposta.toString(), false);
-            } else {
-              // This is interpreted as a file name
-              String fileName = httpQuery.replaceFirst("/", "");
-              fileName = URLDecoder.decode(fileName);
-              if (new File(fileName).isFile()) {
-                resposta(200, fileName, true);
-              } else {
-                resposta(404, "<b>Página nao encontrada ...." + "Use: http://127.0.0.1:8081 ou localhost:8081/</b>", false);
-              }
-            }
-          */
-
-          } // Fim GET
           else if (metodoHttp.equals("POST")) {
 
             String[] arrOfStr = httpQuery.split("/"); //divide os elementos do endereço a partir da /
@@ -167,14 +121,52 @@ public class httpServerHandler extends Thread {
                     String ID = arrOfStr[2];
 
                     String Mensagem = GetPostVariable("mensagem");
+                    String nickname = listaClientes.devolveNickname(ID);
                     
-                    System.out.println("Tamanho cabecalho:" + lstCabecalho.size());
+                    if (nickname.equals(""))
+                        resposta(404, "ID Invalido", false); 
+                    else {
+                     
+                          System.out.println("Vai registar a mensagem:[" + Mensagem + "]");
 
-                    System.out.println("Vai registar a mensagem:[" + Mensagem + "]");
+                          listaMensagens.registarMensagem(Mensagem, nickname, ID);
 
-                    resposta(200, httpQuery, false);
+                          String Consulta = getConsulta();
 
-                  }
+                          resposta(200, Consulta, false);
+
+
+                    }
+                    
+                }
+
+                  //Registo
+                  if (arrOfStr[1].equals("registo")) { // Se o primeiro elemento for igual a /registo
+
+                    // http://127.0.0.1:8081/registo/[Nickname]
+
+                    String Nickname = GetPostVariable("nickname");
+                    System.out.println("Vai registar o nickname " + Nickname); // arrOfStr[2] -> /nickname
+                    
+                    
+                    if (Nickname.equals("")) // se não existe o nickname inserido
+                      resposta(404, "Nickname vazio", false); // resposta -> "Nickname vazio"
+                    else if (listaClientes.existeCliente(Nickname))
+                      resposta(404, "Nickname existente", false); // resposta -> "Nickname já existe"
+                    else {
+
+                      String id = listaClientes.registarCliente(Nickname); // ---->>>>Classe "ListaClientes" -- Se é inserido um
+                                                                          // nickname novo, adiciona-o à lista
+
+                      System.out.println("Registo:" + id);
+
+                      resposta(200, id, false); // resposta => atribui um id
+
+                    }
+
+                    listaClientes.PrintAll(); // imprime todos os elementos adicionados à lista
+
+                  }  
 
 
             }
@@ -187,6 +179,55 @@ public class httpServerHandler extends Thread {
     }
 
   } //Run
+
+  private String getConsulta() {
+
+    String Resposta = "";
+
+    //Clientes
+
+    Resposta += "<p><strong> Clientes Registados</strong></p>";
+    Resposta += "<table class=\"table\">";
+    Resposta += "  <thead class=\"thead-light\">";
+    Resposta += "   <tr>";
+    Resposta += "    <th scope=\"col\">Nickname</th>";
+    Resposta += "    <th scope=\"col\">ID</th>";
+    Resposta += "   </tr>";
+    Resposta += "  </thead>";
+    Resposta += "  <tbody>";
+
+    for (int i= 0; i < listaClientes.getListaClientes().size(); i++) {
+      Cliente c = (Cliente)listaClientes.getListaClientes().get(i);
+      Resposta += "   <tr>";
+			Resposta += "  	  <td>" + c.getNickname() + "</td>";
+			Resposta += "  	  <td>" + c.getId() + "</td>";
+			Resposta += "  	</tr>";
+   
+    }   
+  
+    Resposta += "   </tbody>";
+    Resposta += "</table>";
+    
+    // Fim Clientes
+
+    // Mensagens 
+    Resposta += "<p><strong> Mensagens</strong></p>";
+
+    for (int i= 0; i < listaMensagens.getListaMensagens().size(); i++) {
+      Mensagem m = (Mensagem)listaMensagens.getListaMensagens().get(i);
+      Resposta += "<div class=\"card\" >";
+      Resposta += "	  <div class=\"card-body\">";
+      Resposta += "	    <h6 class=\"card-subtitle mb-2 text-muted\">" + m.getNickname() + "</h6>";
+      Resposta += "		  <p class=\"card-text\">" + m.getMensagem() + "</p>";
+			
+      Resposta += "	    </div>";
+      Resposta += "</div>";
+     	
+  }   
+
+    return Resposta;
+
+  }
 
   private String GetPostVariable (String Variavel){
 
